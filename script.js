@@ -44,7 +44,7 @@ const GameBoard = {
   },
 };
 
-var GamePlay = {
+const GamePlay = {
   gameboard: [],
   playerTurn: true,
   score: { playerOne: 0, playerTwo: 0 },
@@ -58,15 +58,16 @@ var GamePlay = {
         const blockId = e.target.id;
         const blockIdNum = blockId.split("_")[1];
         const block = document.getElementById(`block_${blockIdNum}`);
-        GamePlay.playerTurn
+        this.playerTurn
           ? block.classList.add("clickedPlayer-1")
           : block.classList.add("clickedPlayer-2");
-        GamePlay.gameboard[blockIdNum] = GamePlay.playerTurn == true ? 1 : 2;
+        this.gameboard[blockIdNum] = this.playerTurn == true ? 1 : 2;
 
-        GamePlay.checkWin();
+        this.checkWin();
       });
     });
   },
+
   checkWin() {
     const winCombos = [
       [0, 1, 2],
@@ -79,60 +80,57 @@ var GamePlay = {
       [2, 4, 6],
     ];
 
-    let player = GamePlay.playerTurn ? 1 : 2;
-    console.log(GamePlay.playerTurn);
+    let player = this.playerTurn ? 1 : 2;
 
     for (let combo = 0; combo < winCombos.length; combo++) {
       let [a, b, c] = [
-        GamePlay.gameboard[winCombos[combo][0]],
-        GamePlay.gameboard[winCombos[combo][1]],
-        GamePlay.gameboard[winCombos[combo][2]],
+        this.gameboard[winCombos[combo][0]],
+        this.gameboard[winCombos[combo][1]],
+        this.gameboard[winCombos[combo][2]],
       ];
 
       for (let cIndex = 0; cIndex < winCombos[combo].length; cIndex++) {
-        if (GamePlay.gameboard[winCombos[combo][cIndex]] !== player) break;
+        if (this.gameboard[winCombos[combo][cIndex]] !== player) break;
 
         if (a != player || b != player || c != player) break;
 
-        GamePlay.incrementScore();
-        GamePlay.determineWinner();
-        GamePlay.resetGame();
+        this.incrementScore();
+        this.determineWinner();
+        this.resetGame();
 
         return;
       }
     }
-    GamePlay.checkIfTie();
-    GamePlay.toggleTurn();
+    this.checkIfTie();
+    this.toggleTurn();
   },
 
   toggleTurn() {
-    GamePlay.playerTurn = !GamePlay.playerTurn;
+    this.playerTurn = !this.playerTurn;
   },
 
   incrementScore() {
-    GamePlay.playerTurn
-      ? GamePlay.score.playerOne++
-      : GamePlay.score.playerTwo++;
-    if (GamePlay.playerTurn == true)
+    this.playerTurn ? this.score.playerOne++ : this.score.playerTwo++;
+    if (this.playerTurn == true)
       document.getElementById("playerOne").innerText =
-        "Player One: " + GamePlay.score.playerOne;
+        "Player One: " + this.score.playerOne;
     else
       document.getElementById("playerTwo").innerText =
-        "Player Two: " + GamePlay.score.playerTwo;
+        "Player Two: " + this.score.playerTwo;
   },
 
   checkIfTie() {
     for (let index = 0; index < 9; index++) {
-      console.log(GamePlay.gameboard);
-      if (typeof GamePlay.gameboard[index] == "undefined") return;
+      console.log(this.gameboard);
+      if (typeof this.gameboard[index] == "undefined") return;
     }
 
     alert("It's a tie!");
-    GamePlay.resetGame();
+    this.resetGame();
   },
 
   determineWinner() {
-    if (GamePlay.playerTurn) alert("Player One Wins!");
+    if (this.playerTurn) alert("Player One Wins!");
     else alert("Player Two Wins!");
   },
 
@@ -145,7 +143,24 @@ var GamePlay = {
       child.classList.remove("clickedPlayer-1");
       child.classList.remove("clickedPlayer-2");
     });
-    GamePlay.gameboard = [];
+    this.gameboard = [];
+  },
+};
+
+const ai = {
+  playerTwoAi() {
+    const blocks = document.querySelectorAll(".block");
+    const blockIds = [];
+    blocks.forEach((block) => {
+      const child = block.firstElementChild;
+      if (child.classList.value == "") blockIds.push(block.id);
+    });
+
+    const randomBlockId = blockIds[Math.floor(Math.random() * blockIds.length)];
+    const block = document.getElementById(`block_${randomBlockId}`);
+    block.classList.add("clickedPlayer-2");
+    this.gameboard[randomBlockId] = 2;
+    this.checkWin();
   },
 };
 
