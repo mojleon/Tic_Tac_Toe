@@ -101,12 +101,14 @@ const GamePlay = {
         return;
       }
     }
+
     this.checkIfTie();
     this.toggleTurn();
   },
 
   toggleTurn() {
-    this.playerTurn = !this.playerTurn;
+    if (this.playerTurn) AI.playerTwoAi();
+    this.playerTurn = true;
   },
 
   incrementScore() {
@@ -121,7 +123,6 @@ const GamePlay = {
 
   checkIfTie() {
     for (let index = 0; index < 9; index++) {
-      console.log(this.gameboard);
       if (typeof this.gameboard[index] == "undefined") return;
     }
 
@@ -147,20 +148,21 @@ const GamePlay = {
   },
 };
 
-const ai = {
+const AI = {
   playerTwoAi() {
     const blocks = document.querySelectorAll(".block");
     const blockIds = [];
+
     blocks.forEach((block) => {
       const child = block.firstElementChild;
-      if (child.classList.value == "") blockIds.push(block.id);
+
+      if (child.classList.value == "") blockIds.push(child.id.split("_")[1]);
     });
 
     const randomBlockId = blockIds[Math.floor(Math.random() * blockIds.length)];
     const block = document.getElementById(`block_${randomBlockId}`);
     block.classList.add("clickedPlayer-2");
-    this.gameboard[randomBlockId] = 2;
-    this.checkWin();
+    GamePlay.gameboard[randomBlockId] = 2;
   },
 };
 
