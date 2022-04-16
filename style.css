@@ -62,3 +62,10 @@ body {
 .playerTwo {
   color: red;
 }
+
+.difficulty {
+  margin-top: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}

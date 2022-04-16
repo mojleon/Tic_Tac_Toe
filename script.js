@@ -10,6 +10,7 @@ const GameBoard = {
     }
 
     GameBoard.placeScoreBoard();
+    GameBoard.placeDifficulty();
     GamePlay.evenListener();
   },
 
@@ -42,12 +43,43 @@ const GameBoard = {
     playerTwo.innerText = "Player Two: " + GamePlay.score.playerTwo;
     scoreDiv.appendChild(playerTwo);
   },
+
+  placeDifficulty() {
+    const body = document.querySelector("body");
+    const difficultyDiv = document.createElement("select");
+
+    const difficultyLevels = ["Easy", "Impossible"];
+
+    difficultyDiv.setAttribute("id", "difficulty");
+    difficultyDiv.classList.add("difficulty");
+
+    for (let i = 0; i < difficultyLevels.length; i++) {
+      {
+        const option = document.createElement("option");
+        option.setAttribute("value", difficultyLevels[i]);
+        option.innerText = difficultyLevels[i];
+        difficultyDiv.appendChild(option);
+      }
+
+      body.appendChild(difficultyDiv);
+    }
+  },
 };
 
 const GamePlay = {
   gameboard: [],
   playerTurn: true,
   score: { playerOne: 0, playerTwo: 0 },
+  winCombos: [
+    [0, 1, 2],
+    [3, 4, 5],
+    [6, 7, 8],
+    [0, 3, 6],
+    [1, 4, 7],
+    [2, 5, 8],
+    [0, 4, 8],
+    [2, 4, 6],
+  ],
 
   evenListener() {
     const blocks = document.querySelectorAll(".block");
@@ -55,42 +87,36 @@ const GamePlay = {
       block.addEventListener("click", (e) => {
         if (e.target.classList.value !== "") return;
 
-        const blockId = e.target.id;
-        const blockIdNum = blockId.split("_")[1];
-        const block = document.getElementById(`block_${blockIdNum}`);
-        this.playerTurn
-          ? block.classList.add("clickedPlayer-1")
-          : block.classList.add("clickedPlayer-2");
-        this.gameboard[blockIdNum] = this.playerTurn == true ? 1 : 2;
-
-        this.checkWin();
+        this.clickBlock(e.target);
       });
     });
   },
 
-  checkWin() {
-    const winCombos = [
-      [0, 1, 2],
-      [3, 4, 5],
-      [6, 7, 8],
-      [0, 3, 6],
-      [1, 4, 7],
-      [2, 5, 8],
-      [0, 4, 8],
-      [2, 4, 6],
-    ];
+  clickBlock(target) {
+    console.log(target.id);
+    const blockId = target.id;
+    const blockIdNum = blockId.split("_")[1];
+    const block = document.getElementById(`block_${blockIdNum}`);
+    this.playerTurn
+      ? block.classList.add("clickedPlayer-1")
+      : block.classList.add("clickedPlayer-2");
+    this.gameboard[blockIdNum] = this.playerTurn == true ? 1 : 2;
 
+    this.checkWin();
+  },
+
+  checkWin() {
     let player = this.playerTurn ? 1 : 2;
 
-    for (let combo = 0; combo < winCombos.length; combo++) {
+    for (let combo = 0; combo < this.winCombos.length; combo++) {
       let [a, b, c] = [
-        this.gameboard[winCombos[combo][0]],
-        this.gameboard[winCombos[combo][1]],
-        this.gameboard[winCombos[combo][2]],
+        this.gameboard[this.winCombos[combo][0]],
+        this.gameboard[this.winCombos[combo][1]],
+        this.gameboard[this.winCombos[combo][2]],
       ];
 
-      for (let cIndex = 0; cIndex < winCombos[combo].length; cIndex++) {
-        if (this.gameboard[winCombos[combo][cIndex]] !== player) break;
+      for (let cIndex = 0; cIndex < this.winCombos[combo].length; cIndex++) {
+        if (this.gameboard[this.winCombos[combo][cIndex]] !== player) break;
 
         if (a != player || b != player || c != player) break;
 
@@ -107,7 +133,10 @@ const GamePlay = {
   },
 
   toggleTurn() {
-    if (this.playerTurn) AI.playerTwoAi();
+    if (this.playerTurn) {
+      this.playerTurn = false;
+      AI.checkDifficulty();
+    }
     this.playerTurn = true;
   },
 
@@ -149,26 +178,75 @@ const GamePlay = {
 };
 
 const AI = {
-  playerTwoAi() {
+  checkDifficulty() {
+    const difficulty = document.getElementById("difficulty").value;
+    if (difficulty == "Easy") {
+      this.easyAi();
+    } else if (difficulty == "Impossible") {
+      this.hardAi();
+    }
+  },
+  easyAi() {
     const blocks = document.querySelectorAll(".block");
     const blockIds = [];
 
     blocks.forEach((block) => {
       const child = block.firstElementChild;
-
       if (child.classList.value == "") blockIds.push(child.id.split("_")[1]);
     });
 
     const randomBlockId = blockIds[Math.floor(Math.random() * blockIds.length)];
     const block = document.getElementById(`block_${randomBlockId}`);
-    block.classList.add("clickedPlayer-2");
-    GamePlay.gameboard[randomBlockId] = 2;
+    GamePlay.clickBlock(block);
+  },
+  hardAi() {
+    const blocks = document.querySelectorAll(".block");
+    const blockIds = [];
+
+    blocks.forEach((block) => {
+      const child = block.firstElementChild;
+      if (child.classList.value == "")
+        blockIds.push([child.id.split("_")[1], child.classList.value]);
+    });
+
+    let blockId = blockIds[Math.floor(Math.random() * blockIds.length)][0];
+
+    GamePlay.winCombos.forEach((combo) => {
+      const [a, b, c] = combo;
+      const gameboard = GamePlay.gameboard;
+      if (
+        (gameboard[a] == 2 &&
+          gameboard[b] == 2 &&
+          typeof gameboard[c] == "undefined") ||
+        (gameboard[a] == 1 &&
+          gameboard[b] == 1 &&
+          typeof gameboard[c] == "undefined")
+      )
+        blockId = c;
+      if (
+        (gameboard[a] == 2 &&
+          typeof gameboard[b] == "undefined" &&
+          gameboard[c] == 2) ||
+        (gameboard[a] == 1 &&
+          typeof gameboard[b] == "undefined" &&
+          gameboard[c] == 1)
+      )
+        blockId = b;
+      if (
+        (typeof gameboard[a] == "undefined" &&
+          gameboard[b] == 2 &&
+          gameboard[c] == 2) ||
+        (typeof gameboard[a] == "undefined" &&
+          gameboard[b] == 1 &&
+          gameboard[c] == 1)
+      )
+        blockId = a;
+    });
+
+    const block = document.getElementById(`block_${blockId}`);
+
+    GamePlay.clickBlock(block);
   },
 };
 
 GameBoard.render();
-
-var Players = {
-  player1: true,
-  player2: false,
-};
