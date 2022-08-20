@@ -11,7 +11,7 @@ const GameBoard = {
 
     GameBoard.placeScoreBoard(gameboardDiv);
     GameBoard.placeDifficulty(body);
-    GameBoard.threeD();
+    GameBoard.perspective();
     GamePlay.evenListener();
   },
 
@@ -64,7 +64,7 @@ const GameBoard = {
     }
   },
 
-  threeD() {
+  perspective() {
     let constrain = 20;
     let gameboardDiv = document.querySelector(".gameboardDiv");
 
