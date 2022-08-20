@@ -9,8 +9,9 @@ const GameBoard = {
       GameBoard.placeBlock(gameboardDiv, divIndex);
     }
 
-    GameBoard.placeScoreBoard();
-    GameBoard.placeDifficulty();
+    GameBoard.placeScoreBoard(gameboardDiv);
+    GameBoard.placeDifficulty(body);
+    GameBoard.threeD();
     GamePlay.evenListener();
   },
 
@@ -25,8 +26,7 @@ const GameBoard = {
     gameboardDiv.appendChild(outerDiv);
   },
 
-  placeScoreBoard() {
-    const body = document.querySelector("body");
+  placeScoreBoard(body) {
     const scoreDiv = document.createElement("div");
     scoreDiv.classList.add("scoreDiv");
     body.appendChild(scoreDiv);
@@ -44,8 +44,7 @@ const GameBoard = {
     scoreDiv.appendChild(playerTwo);
   },
 
-  placeDifficulty() {
-    const body = document.querySelector("body");
+  placeDifficulty(body) {
     const difficultyDiv = document.createElement("select");
 
     const difficultyLevels = ["Easy", "Impossible"];
@@ -63,6 +62,40 @@ const GameBoard = {
 
       body.appendChild(difficultyDiv);
     }
+  },
+
+  threeD() {
+    let constrain = 20;
+    let gameboardDiv = document.querySelector(".gameboardDiv");
+
+    function transforms(x, y, el) {
+      let box = el.getBoundingClientRect();
+      let calcX = -(y - box.y - box.height / 2) / constrain;
+      let calcY = (x - box.x - box.width / 2) / constrain;
+
+      return (
+        "perspective(200px) " +
+        "   rotateX(" +
+        calcX +
+        "deg) " +
+        "   rotateY(" +
+        calcY +
+        "deg) "
+      );
+    }
+
+    function transformElement(el, xyEl) {
+      el.style.transform = transforms.apply(null, xyEl);
+    }
+
+    gameboardDiv.onmousemove = function (e) {
+      let xy = [e.clientX, e.clientY];
+      let position = xy.concat([gameboardDiv]);
+
+      window.requestAnimationFrame(function () {
+        transformElement(gameboardDiv, position);
+      });
+    };
   },
 };
 
