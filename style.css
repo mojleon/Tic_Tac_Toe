@@ -8,7 +8,7 @@ body {
 
   overflow: hidden;
 
-  background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+  background: linear-gradient(-45deg, #2c3531, #116466, #d9b08c, #d1e8e2);
   background-size: 400% 400%;
   animation: gradient 15s ease infinite;
 }
@@ -75,7 +75,6 @@ body {
 
 .playerOne,
 .playerTwo {
-  background-color: #333;
   padding: 12px;
   border-radius: 10px;
 }
@@ -99,4 +98,22 @@ body {
   background: #333;
   color: white;
   bottom: 0;
+}
+
+.block div,
+.playerOne,
+.playerTwo {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 16px;
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  /* From https://css.glass */
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 16px;
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
 }
